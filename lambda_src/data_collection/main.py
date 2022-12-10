@@ -1,7 +1,23 @@
-import json
+import boto3
 import requests
 from bs4 import BeautifulSoup
 
+
+ssm = boto3.client('ssm')
+dynamodb = boto3.resource('dynamodb')
+
+def get_next_puzzle_id() -> str:
+    """
+    Get the next puzzle ID and increment it. This way if it fails to scrape the current day's puzzle,
+    it will still move on to the next puzzle tomorrow instead of getting stuck.
+
+    Returns:
+        str: puzzle ID currently in parameter store
+    """
+    puzzle_id = ssm.get_parameter(Name='next_puzzle_id')['Parameter']['Value']
+    ssm.put_parameter(Name='next_puzzle_id', Value=str(int(puzzle_id) + 1), Overwrite=True)
+
+    return puzzle_id
 
 def scrape_puzzle_page(puzzle_id: str) -> dict:
     word_data = {}
@@ -35,11 +51,15 @@ def scrape_words(soup: BeautifulSoup) -> list[str]:
     return [word.text.lower() for word in records]
 
 def lambda_handler(event=None, context=None):
-    puzzle_id = '1676'
+    puzzle_id = get_next_puzzle_id()
     word_data = scrape_puzzle_page(puzzle_id)
 
-    # write to file
-    # with open(f'{puzzle_id}.json', 'w') as output:
-    #     json.dump(word_data, output)
+    # write to DynamoDB
+    table = dynamodb.Table('UnscramblePuzzles')
 
-    return json.dumps(word_data)
+    table.put_item(
+        Item={
+            'PuzzleId': int(puzzle_id),
+            'PuzzleDetail': word_data
+        }
+    )
