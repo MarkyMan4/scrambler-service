@@ -2,17 +2,17 @@
 data "archive_file" "zip_data_collection" {
   type        = "zip"
   source_dir  = "${path.module}/lambda_src/data_collection/"
-  output_path = "${path.module}/lambda_src/data_collection/collection.zip"
+  output_path = "${path.module}/lambda_archives/collection.zip"
 }
 
 resource "aws_lambda_function" "data_collection_func" {
-  filename         = "${path.module}/lambda_src/data_collection/collection.zip"
+  filename         = "${path.module}/lambda_archives/collection.zip"
   function_name    = "unscramble_data_collection"
   role             = aws_iam_role.lambda_role.arn
   handler          = "main.lambda_handler"
   runtime          = "python3.9"
   depends_on       = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]
-  source_code_hash = filebase64sha256("${path.module}/lambda_src/data_collection/collection.zip")
+  source_code_hash = filebase64sha256("${path.module}/lambda_archives/collection.zip")
   timeout          = 60
 
   layers = [

@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_event_rule" "data_collection_schedule" {
   name                = "unscramble_data_collection_schedule"
   description         = "Schedule for unscramble data collection"
-  schedule_expression = "cron(*/5 * * * ? *)"
+  schedule_expression = "cron(0 7 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "schedule_data_collection_lambda" {
