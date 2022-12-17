@@ -21,6 +21,11 @@ resource "aws_lambda_function" "data_collection_func" {
   ]
 }
 
+resource "aws_lambda_function_event_invoke_config" "data_collection_config" {
+  function_name                = aws_lambda_function.data_collection_func.function_name
+  maximum_retry_attempts       = 0
+}
+
 resource "aws_lambda_layer_version" "requests_lambda_layer" {
   filename   = "${path.module}/lambda_layers/requests.zip"
   layer_name = "requests"
