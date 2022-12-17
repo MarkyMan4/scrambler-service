@@ -27,7 +27,7 @@ resource "aws_iam_policy" "iam_policy_for_lambda" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow",
+        Effect = "Allow",
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
@@ -41,7 +41,8 @@ resource "aws_iam_policy" "iam_policy_for_lambda" {
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:PutItem",
-          "dynamodb:UpdateItem"
+          "dynamodb:UpdateItem",
+          "dynamodb:Scan"
         ],
         Resource = aws_dynamodb_table.unscramble_table.arn
       },
