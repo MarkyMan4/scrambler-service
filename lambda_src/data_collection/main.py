@@ -51,7 +51,12 @@ def scrape_words(soup: BeautifulSoup) -> list[str]:
     return [word.text.lower() for word in records]
 
 def lambda_handler(event=None, context=None):
-    puzzle_id = get_next_puzzle_id()
+    # can override parameter store lookup by passing puzzle ID in the event
+    if 'puzzle_id' in event:
+        puzzle_id = event['puzzle_id']
+    else:
+        puzzle_id = get_next_puzzle_id()
+    
     word_data = scrape_puzzle_page(puzzle_id)
 
     # write to DynamoDB
