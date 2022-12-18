@@ -8,7 +8,7 @@ def lambda_handler(event=None, context=None):
 
     res = table.scan(ProjectionExpression='PuzzleId')
     ids = [int(item['PuzzleId']) for item in res['Items']]
-    ids.sort()
+    ids.sort(reverse=True)
     
     return {
         "isBase64Encoded": False,
