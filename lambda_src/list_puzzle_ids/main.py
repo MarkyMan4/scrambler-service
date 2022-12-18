@@ -13,6 +13,6 @@ def lambda_handler(event=None, context=None):
     return {
         "isBase64Encoded": False,
         "statusCode": 200,
-        "headers": {},
+        "headers": {'Access-Control-Allow-Origin': '*'},
         "body": json.dumps(ids)
     }
