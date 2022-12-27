@@ -51,20 +51,26 @@ def scrape_words(soup: BeautifulSoup) -> list[str]:
     return [word.text.lower() for word in records]
 
 def lambda_handler(event=None, context=None):
+    puzzle_id_list = []
+    
     # can override parameter store lookup by passing puzzle ID in the event
     if 'puzzle_id' in event:
-        puzzle_id = event['puzzle_id']
+        puzzle_id_list.append(event['puzzle_id'])
+    elif 'range' in event: # can pass range to collect multiple puzzles in one run (e.g. {"range": {"start": 10, "end": 20}})
+        for i in range(int(event['range']['start']), int(event['range']['end']) + 1):
+            puzzle_id_list.append(i)
     else:
-        puzzle_id = get_next_puzzle_id()
+        puzzle_id_list.append(get_next_puzzle_id())
     
-    word_data = scrape_puzzle_page(puzzle_id)
+    for puzzle_id in puzzle_id_list:
+        word_data = scrape_puzzle_page(puzzle_id)
 
-    # write to DynamoDB
-    table = dynamodb.Table('UnscramblePuzzles')
+        # write to DynamoDB
+        table = dynamodb.Table('UnscramblePuzzles')
 
-    table.put_item(
-        Item={
-            'PuzzleId': int(puzzle_id),
-            'PuzzleDetail': word_data
-        }
-    )
+        table.put_item(
+            Item={
+                'PuzzleId': int(puzzle_id),
+                'PuzzleDetail': word_data
+            }
+        )
